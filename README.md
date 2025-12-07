@@ -2,11 +2,18 @@
 
 A hack to manage persistent data across CI/CD workflow runs.
 
-## Usage
+## Usage (with GitHub Actions)
 
 Download the file [ci-storage](./ci-storage) and place it in your project directory.
 
-In your workflow file, add the following step before the workflow needs access to the stored data:
+In your workflow file, make sure you add the necessary permissions:
+
+```yaml
+permissions:
+    contents: write
+```
+
+Then add the following step somewhere before the workflow needs access to the stored data:
 
 ```yaml
 - name: Get or create the storage directory
