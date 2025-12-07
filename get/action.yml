@@ -1,0 +1,33 @@
+name: "CI Storage - Get"
+description: "Get or create the storage directory and export CI_STORAGE_PATH"
+author: "hardliner66"
+
+outputs:
+    storage-path:
+        description: "Absolute path to the storage directory"
+        value: ${{ steps.run-get.outputs.storage-path }}
+
+runs:
+    using: "composite"
+    steps:
+        - name: Run ci-storage get and export path
+          id: run-get
+          shell: bash
+          run: |
+              SCRIPT="${GITHUB_ACTION_PATH}/../ci-storage"
+
+              chmod +x "$SCRIPT"
+
+              # Ensure storage directory exists (and init if needed)
+              "$SCRIPT" get
+
+              # Get absolute path
+              STORAGE_PATH="$("$SCRIPT" path)"
+
+              echo "Storage path: $STORAGE_PATH"
+
+              # Make it available as an output
+              echo "storage-path=$STORAGE_PATH" >> "$GITHUB_OUTPUT"
+
+              # Export for all later steps in this job
+              echo "CI_STORAGE_PATH=$STORAGE_PATH" >> "$GITHUB_ENV"

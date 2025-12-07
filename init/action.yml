@@ -1,0 +1,14 @@
+name: "CI Storage - Init"
+description: "Initialize CI storage system if needed"
+author: "Your Name"
+
+runs:
+    using: "composite"
+    steps:
+        - name: Run ci-storage init
+          shell: bash
+          run: |
+              SCRIPT="${GITHUB_ACTION_PATH}/../ci-storage"
+
+              chmod +x "$SCRIPT"
+              "$SCRIPT" init

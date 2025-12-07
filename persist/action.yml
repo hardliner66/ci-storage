@@ -1,0 +1,14 @@
+name: "CI Storage - Persist"
+description: "Persist storage directory changes by committing and pushing"
+author: "hardliner66"
+
+runs:
+    using: "composite"
+    steps:
+        - name: Run ci-storage persist
+          shell: bash
+          run: |
+              SCRIPT="${GITHUB_ACTION_PATH}/../ci-storage"
+
+              chmod +x "$SCRIPT"
+              "$SCRIPT" persist
