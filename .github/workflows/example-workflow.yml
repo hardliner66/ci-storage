@@ -15,10 +15,10 @@ jobs:
               uses: actions/checkout@v4
 
             - name: Get or create the storage directory
-              run: ./ci-storage get
+              uses: hardliner66/ci-storage/get@v1
 
             - name: Use, update or create some data
-              run: node example/increment-count.js "$(./ci-storage path)/data.json"
+              run: node example/increment-count.js "$CI_STORAGE_PATH/data.json"
 
             - name: Persist changes to storage
-              run: ./ci-storage persist
+              uses: hardliner66/ci-storage/persist@v1
