@@ -13,6 +13,10 @@ In your workflow file, add the following step before the workflow needs access t
   run: ./ci-storage get
 ```
 
+_The `get` command will automatically call `init`, if the system isn't initialized.
+If you want to prevent automatic initialization, set the environment variable `CI_STORAGE_INIT` to `no_auto`.
+In this case, you need to run `./ci-storage init` manually before calling `./ci-storage get` or `./ci-storage persist`._
+
 After that is done, you can add, change or remove files from the storage directory (`.ci-storage/`).
 
 You can use the command `./ci-storage path` to get the absolute path to the storage directory.

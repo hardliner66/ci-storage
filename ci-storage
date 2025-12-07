@@ -95,6 +95,12 @@ case "$command" in
 
       if [ ${exit_code} -ne 0 ]
       then
+          if [[ "$CI_STORAGE_INIT" == "no_auto" ]]
+          then
+              err "CI_STORAGE_INIT is set to 'no_auto'. Please run './ci-storage init' manually before calling" \
+                  "ci-storage get or persist."
+              exit 1
+          fi
           init_ci_storage || exit 1
       fi
       git checkout origin/"$data_branch" -- .ci-storage
