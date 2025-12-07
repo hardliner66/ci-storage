@@ -2,6 +2,10 @@
 
 A hack to manage persistent data across CI/CD workflow runs.
 
+**IMPORTANT: persisting data and using it in later CI jobs to change the behavior of your workflow
+will make your jobs non-deterministic. There are cases where this is acceptable, but in general it's
+not recommended. Use at your own risk!**
+
 ## Usage (with GitHub Actions)
 
 In your workflow file, make sure you add the necessary permissions:
@@ -37,10 +41,7 @@ If you don't persist the changes, they will be lost once the workflow run is com
 
 ## Example
 
-You can check out the [example workflow](.github/workflows/example-workflow.yml) to see how it's used
-in a workflow file and how to access the stored data. The example workflow runs the file
-[example/increment-count.sh](./example/increment-count.sh) and passes the path where the data should be stored
-as an argument. The script updates a counter in a JSON file or creates the file if it doesn't exist.
+You can check out the workflow in the [example repo](https://github.com/hardliner66/ci-storage-example) to see how it's used.
 
 ## Known Issues
 

@@ -11,4 +11,5 @@ runs:
               SCRIPT="${GITHUB_ACTION_PATH}/../ci-storage"
 
               chmod +x "$SCRIPT"
-              CI_STORAGE_REPO_ROOT=${{ github.workspace }} bash "$SCRIPT" persist
+              export CI_STORAGE_REPO_ROOT=${{ github.workspace }}
+              bash "$SCRIPT" persist

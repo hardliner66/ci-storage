@@ -1,6 +1,6 @@
 name: "CI Storage - Init"
 description: "Initialize CI storage system if needed"
-author: "Your Name"
+author: "hardliner66"
 
 runs:
     using: "composite"
@@ -11,4 +11,5 @@ runs:
               SCRIPT="${GITHUB_ACTION_PATH}/../ci-storage"
 
               chmod +x "$SCRIPT"
-              CI_STORAGE_REPO_ROOT=${{ github.workspace }} bash "$SCRIPT" init
+              export CI_STORAGE_REPO_ROOT=${{ github.workspace }}
+              bash "$SCRIPT" init
