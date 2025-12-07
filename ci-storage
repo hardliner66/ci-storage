@@ -1,16 +1,53 @@
 #!/bin/bash
 
+set -eo pipefail
+
 command="$1"
 
-data_branch="ci/persistent-storage"
+script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
+pushd "$script_dir" &>/dev/null || exit 1
+
+data_branch="${CI_STORAGE_DATA_BRANCH:-ci/persistent-storage}"
 remote_url="$(git config --get remote.origin.url)"
 root_dir="$(git rev-parse --show-toplevel)"
 
 pushd "$root_dir" &>/dev/null || exit 1
 
-set_git_config () {
+err() { printf "%s\n" "$*" >&2; }
+
+config_github() {
     git config --global user.name "CI Storage"
     git config --global user.email "$GITHUB_REPOSITORY_OWNER@users.noreply.github.com"
+}
+
+configure_git () {
+    if [[ "$CI_GIT_CONFIG" == "skip" ]]
+    then
+        return 0
+    elif [[ -n "$CI_GIT_CONFIG" ]]
+    then
+        if [ ! -f "$CI_GIT_CONFIG" ]; then
+            err "CI_GIT_CONFIG is set, but it neither contains the value 'skip' nor a valid path to a script" \
+                "to configure git."
+            exit 1
+        fi
+        if [[ ! -x "$CI_GIT_CONFIG" ]]
+        then
+            err "CI_GIT_CONFIG is set, but the script at the given path is not executable."
+            exit 1
+        fi
+        bash -c "$CI_GIT_CONFIG"
+    elif [[ "$GITHUB_ACTIONS" == "true" ]]
+    then
+        config_github
+    else
+        err "CI environment not supported yet!"
+        err "If you know how to detect your CI environment and how to configure git to allow pushing from CI," \
+            "feel free to submit an issue with the information needed to add the CI environment or" \
+            "create a PR to add support yourself."
+        exit 1
+    fi
 }
 
 shopt -s nocasematch
@@ -39,7 +76,7 @@ case "$command" in
           mkdir -p .ci-storage
           touch .ci-storage/.gitkeep
 
-          set_git_config
+          configure_git || exit 1
 
           git add .ci-storage
           git commit -m "init"
@@ -52,8 +89,9 @@ case "$command" in
   persist)
       git checkout "$data_branch"
 
-      set_git_config
+      configure_git || exit 1
 
+      git pull --ff-only
       git add .ci-storage
       git commit -m "update"
       git push origin "$data_branch"
@@ -65,4 +103,5 @@ case "$command" in
     ;;
 esac
 
-popd &>/dev/null || exit 1
+popd &>/dev/null || exit 1 # git root
+popd &>/dev/null || exit 1 # script dir

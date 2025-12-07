@@ -32,3 +32,30 @@ You can check out the [example workflow](.github/workflows/example-workflow.yml)
 in a workflow file and how to access the stored data. The example workflow runs the file
 [example/increment-count.sh](./example/increment-count.sh) and passes the path where the data should be stored
 as an argument. The script updates a counter in a JSON file or creates the file if it doesn't exist.
+
+## Known Issues
+
+As this is basically a hack to persist data across CI runs, there are some limitations. For instance,
+if two CI jobs are running at the same time and they both use the `ci-storage` script,
+one of the jobs will probably fail because as soon as one job pushes to the repository,
+the other job can only push if it pulled after the push happened.
+
+And because we don't know what data was changed, we don't know if we can recover
+(e.g. by pulling again if pushing fails) without git potentially messing up the merge.
+The script runs `git pull --ff-only` before pushing just in case, but that's not
+guaranteed to work for all cases.
+
+## Supported CI Environments
+
+Right now, `ci-storage` only supports GitHub Actions. This is because the script only knows which
+configuration to set in order to allow pushing from a CI job. If you know how to detect other CI environments and how to set the necessary configuration, feel free to contribute!
+
+If you are using a custom CI environment or if you are using a custom configuration so that
+it can't be added here, you can set the environment variable `CI_GIT_CONFIG` to `skip`,
+which will disable the automatic configuration attempt of git.
+Just make sure you configure git to allow pushing before calling `./ci-storage persist`
+or the script will fail.
+
+Alternatively you can use the path to your custom configuration script as value For
+the environment variable `CI_GIT_CONFIG`. In this case, the script will execute the configured script
+every time before trying to push.
