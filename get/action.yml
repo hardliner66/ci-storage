@@ -15,7 +15,7 @@ runs:
 
               # Ensure storage directory exists (and init if needed)
               export CI_STORAGE_REPO_ROOT=${{ github.workspace }}
-              bash "$SCRIPT" get
+              "$SCRIPT" get
 
               # Get absolute path
               STORAGE_PATH="$("$SCRIPT" path)"

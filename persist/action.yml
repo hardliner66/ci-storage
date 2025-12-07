@@ -12,4 +12,4 @@ runs:
 
               chmod +x "$SCRIPT"
               export CI_STORAGE_REPO_ROOT=${{ github.workspace }}
-              bash "$SCRIPT" persist
+              "$SCRIPT" persist

@@ -129,6 +129,11 @@ case "$command" in
       git add .ci-storage
       git commit -m "update"
       git push origin "$data_branch"
+      git checkout -
+    ;;
+
+  cleanup)
+      rm -rf .ci-storage || true
     ;;
 
   *)

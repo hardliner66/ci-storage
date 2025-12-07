@@ -1,15 +1,15 @@
-name: "CI Storage - Init"
-description: "Initialize CI storage system if needed"
+name: "CI Storage - Cleanup"
+description: "Cleanup CI storage system"
 author: "hardliner66"
 
 runs:
     using: "composite"
     steps:
-        - name: Run ci-storage init
+        - name: Run ci-storage cleanup
           shell: bash
           run: |
               SCRIPT="${GITHUB_ACTION_PATH}/../ci-storage"
 
               chmod +x "$SCRIPT"
               export CI_STORAGE_REPO_ROOT=${{ github.workspace }}
-              "$SCRIPT" init
+              "$SCRIPT" cleanup

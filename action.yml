@@ -1,0 +1,78 @@
+name: "Persistent CI Storage"
+description: "Runs a script with access to a persistent storage directory, who's path is available through the env-var $CI_STORAGE_PATH"
+author: "hardliner66"
+
+branding:
+    icon: "database"
+    color: "blue"
+
+inputs:
+    script:
+        description: >
+            The shell script to execute.
+            Example:
+              script: |
+                echo hi > "$CI_STORAGE_PATH/hello.txt"
+                ls -la "$CI_STORAGE_PATH"
+        required: true
+
+    persist:
+        description: "Whether to persist storage changes afterwards"
+        required: false
+        default: "true"
+
+    cleanup:
+        description: "Whether to delete the storage directory after the script has finished"
+        required: false
+        default: "true"
+
+runs:
+    using: "composite"
+    steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+          with:
+              fetch-depth: 0
+
+        - name: Prepare ci-storage
+          shell: bash
+          run: |
+              chmod +x "${GITHUB_ACTION_PATH}/ci-storage"
+
+        - name: Initialize CI storage
+          id: storage
+          shell: bash
+          run: |
+              SCRIPT="${GITHUB_ACTION_PATH}/ci-storage"
+
+              export CI_STORAGE_REPO_ROOT="${{ github.workspace }}"
+              "$SCRIPT" get
+              STORAGE_PATH="$("$SCRIPT" path)"
+
+              echo "CI_STORAGE_PATH=$STORAGE_PATH" >> "$GITHUB_ENV"
+
+        - name: Run user script
+          shell: bash
+          run: |
+              # Create a temp script
+              TMP_SCRIPT="$(mktemp)"
+              printf "%s\n" "${{ inputs.script }}" > "$TMP_SCRIPT"
+              chmod +x "$TMP_SCRIPT"
+
+              bash "$TMP_SCRIPT" || exit 1
+
+        - name: Persist CI storage
+          if: ${{ inputs.persist == 'true' }}
+          shell: bash
+          run: |
+              SCRIPT="${GITHUB_ACTION_PATH}/ci-storage"
+              export CI_STORAGE_REPO_ROOT="${{ github.workspace }}"
+              "$SCRIPT" persist
+
+        - name: Cleanup CI storage
+          if: ${{ inputs.cleanup == 'true' }}
+          shell: bash
+          run: |
+              SCRIPT="${GITHUB_ACTION_PATH}/ci-storage"
+              export CI_STORAGE_REPO_ROOT="${{ github.workspace }}"
+              "$SCRIPT" cleanup

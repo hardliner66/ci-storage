@@ -6,16 +6,34 @@ A hack to manage persistent data across CI/CD workflow runs.
 will make your jobs non-deterministic. There are cases where this is acceptable, but in general it's
 not recommended. Use at your own risk!**
 
-## Usage (with GitHub Actions)
+## Prerequisites
 
-In your workflow file, make sure you add the necessary permissions:
+Your workflow must have necessary permissions.
+
+To do this, add the following permissions to your workflow file:
 
 ```yaml
 permissions:
     contents: write
 ```
 
-Then add the following step somewhere before the workflow needs access to the stored data:
+## Usage
+
+To make the persistent storage available for your own scripts, you can use the general `hardliner66/ci-storage@v1` action.
+
+```yaml
+- name: Run with persistent storage
+  uses: hardliner66/ci-storage@v1
+  with:
+      script: |
+          # Everything you change, add or remove to the $CI_STORAGE_PATH directory will be persisted
+          echo hi > "$CI_STORAGE_PATH/hello.txt"
+          ls -la "$CI_STORAGE_PATH"
+```
+
+If you need more control, you can call the sub-actions accordingly.
+
+First, call `hardliner66/ci-storage/get@v1` to set up the storage directory.
 
 ```yaml
 - name: Get or create the storage directory
@@ -37,6 +55,13 @@ If you don't persist the changes, they will be lost once the workflow run is com
 ```yaml
 - name: Persist changes to storage
   uses: hardliner66/ci-storage/persist@v1
+```
+
+To remove the storage directory, you can run the `cleanup` action.
+
+```yaml
+- name: Cleanup CI storage
+  uses: hardliner66/ci-storage/cleanup@v1
 ```
 
 ## Example
